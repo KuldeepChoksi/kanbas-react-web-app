@@ -3,60 +3,74 @@ export default function Dashboard() {
       <div id="wd-dashboard">
         <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
         <h2 id="wd-dashboard-published">Published Courses (12)</h2> <hr />
-        <div id="wd-dashboard-courses">
-          <div className="wd-dashboard-course">
-            <img src="/images/reactjs.jpg" width={200} />
-            <div>
+        <div id="wd-dashboard-courses" className="row">
+         <div className="row row-cols-1 row-cols-md-5 g-4">
+          <div className="wd-dashboard-course col" style={{ width: "300px" }}>
+          <div className="card">
+            <img src="/images/reactjs.jpg"/>
+            <div className="card-body">
               <a className="wd-dashboard-course-link"
-                href="#/Kanbas/Courses/1234/Home">
+                href="#/Kanbas/Courses/1234/Home"
+                style={{ textDecoration: "none", color: "navy", fontWeight: "bold" }}>
                 CS1234 React JS
               </a>
-              <p className="wd-dashboard-course-title">
+              <p className="wd-dashboard-course-title card-text">
                 Full Stack software developer
               </p>
-              <a href="#/Kanbas/Courses/1234/Home"> Go </a>
+              <a href="#/Kanbas/Courses/1234/Home" className="btn btn-primary"> Go </a>
             </div>
+           </div>
           </div>
-          <div className="wd-dashboard-course">
-            <img src="/images/JavaScript.jpg" width={200} />
-            <div>
+          <div className="wd-dashboard-course col" style={{ width: "300px" }}>
+          <div className="card">
+            <img src="/images/JavaScript.jpg"/>
+            <div className="card-body">
               <a className="wd-dashboard-course-link"
-                href="#/Kanbas/Courses/0123/Home">
+                href="#/Kanbas/Courses/0123/Home"
+                style={{ textDecoration: "none", color: "navy", fontWeight: "bold" }}>
                 CS0123 JavaScript
               </a>
-              <p className="wd-dashboard-course-title">
+              <p className="wd-dashboard-course-title card-text">
                 Full Stack software developer
               </p>
-              <a href="#/Kanbas/Courses/0123/Home"> Go </a>
+              <a href="#/Kanbas/Courses/1234/Home" className="btn btn-primary"> Go </a>
             </div>
-          </div>          
-          <div className="wd-dashboard-course">
-            <img src="/images/Angular.jpg" width={200} />
-            <div>
+           </div>
+          </div>
+          <div className="wd-dashboard-course col" style={{ width: "300px" }}>
+          <div className="card">
+            <img src="/images/Angular.jpg"/>
+            <div className="card-body">
               <a className="wd-dashboard-course-link"
-                href="#/Kanbas/Courses/2345/Home">
+                href="#/Kanbas/Courses/2345/Home"
+                style={{ textDecoration: "none", color: "navy", fontWeight: "bold" }}>
                 CS2345 Angular
               </a>
-              <p className="wd-dashboard-course-title">
+              <p className="wd-dashboard-course-title card-text">
                 Full Stack software developer
               </p>
-              <a href="#/Kanbas/Courses/2345/Home"> Go </a>
+              <a href="#/Kanbas/Courses/1234/Home" className="btn btn-primary"> Go </a>
             </div>
+           </div>
           </div>
-          <div className="wd-dashboard-course">
-            <img src="/images/NodeJS.jpg" width={200} />
-            <div>
+          <div className="wd-dashboard-course col" style={{ width: "300px" }}>
+          <div className="card">
+            <img src="/images/NodeJS.jpg"/>
+            <div className="card-body">
               <a className="wd-dashboard-course-link"
-                href="#/Kanbas/Courses/3456/Home">
+                href="#/Kanbas/Courses/3456/Home"
+                style={{ textDecoration: "none", color: "navy", fontWeight: "bold" }}>
                 CS3456 Node JS
               </a>
-              <p className="wd-dashboard-course-title">
+              <p className="wd-dashboard-course-title card-text">
                 Full Stack software developer
               </p>
-              <a href="#/Kanbas/Courses/3456/Home"> Go </a>
+              <a href="#/Kanbas/Courses/1234/Home" className="btn btn-primary"> Go </a>
             </div>
+           </div>
           </div>
         </div>
+       </div>
       </div>
   );}
   
