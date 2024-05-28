@@ -1,7 +1,12 @@
 import React from 'react';
-import { BsSearch, BsPlus } from 'react-icons/bs'; // Importing necessary icons for the interface
+import { useParams, Link } from 'react-router-dom';
+import { BsSearch, BsPlus, BsGripVertical } from 'react-icons/bs';
+import { assignments } from '../../Database'; // Ensure the import path matches your project structure
 
 export default function Assignments() {
+    const { cid } = useParams(); // Retrieve the course ID from URL parameters
+    const courseAssignments = assignments.filter(assignment => assignment.course === cid);
+
     return (
       <div id="wd-assignments" className="container">
         <div className="d-flex justify-content-between mb-3">
@@ -18,16 +23,17 @@ export default function Assignments() {
         </div>
         <h3 id="wd-assignments-title" className="mb-4">ASSIGNMENTS 40% of Total</h3>
         <ul id="wd-assignment-list" className="list-group">
-          {[
-            {id: "A1", title: "ENV + HTML", details: "Multiple Modules | Not Available until May 6 at 12:00 am | Due May 13 at 11:59pm | 100 pts"},
-            {id: "A2", title: "CSS + BOOTSTRAP", details: "Multiple Modules | Not Available until May 13 at 12:00 am | Due May 20 at 11:59pm | 100 pts"},
-            {id: "A3", title: "JAVASCRIPT + REACT", details: "Multiple Modules | Not Available until May 20 at 12:00 am | Due May 27 at 11:59pm | 100 pts"}
-          ].map(item => (
-            <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center" style={{ borderLeft: '5px solid green' }}>
-              <a href={`#/Kanbas/Courses/1234/Assignments/${item.id}`} className="flex-grow-1">
-                {item.title} <br/>
-                <small>{item.details}</small>
-              </a>
+          {courseAssignments.map((assignment) => (
+            <li key={assignment._id} className="list-group-item d-flex justify-content-between align-items-center" style={{ borderLeft: '5px solid green' }}>
+              <div className="flex-grow-1 d-flex align-items-center">
+                <BsGripVertical className="me-2" />
+                <Link 
+                    to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+                    className="text-decoration-none"
+                >
+                    {assignment.title}
+                </Link>
+              </div>
             </li>
           ))}
         </ul>
