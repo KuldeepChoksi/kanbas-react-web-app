@@ -1,42 +1,52 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { BsSearch, BsPlus, BsGripVertical } from 'react-icons/bs';
-import { assignments } from '../../Database'; // Ensure the import path matches your project structure
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { BsSearch, BsPlus, BsGripVertical, BsTrash } from 'react-icons/bs';
+import { deleteAssignment } from './reducer'; // Import the delete action
 
 export default function Assignments() {
-    const { cid } = useParams(); // Retrieve the course ID from URL parameters
-    const courseAssignments = assignments.filter(assignment => assignment.course === cid);
+    const { cid } = useParams<{ cid: string }>();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const assignments = useSelector((state: any) => state.assignmentsReducer.assignments);
+    const courseAssignments = assignments.filter((assignment: any) => assignment.course === cid);
+
+    const handleDelete = (assignmentId: string) => {
+        if (window.confirm('Are you sure you want to delete this assignment?')) {
+            dispatch(deleteAssignment(assignmentId));
+        }
+    };
 
     return (
-      <div id="wd-assignments" className="container">
-        <div className="d-flex justify-content-between mb-3">
-          <div className="input-group">
-            <div className="input-group-prepend">
-              <span className="input-group-text"><BsSearch /></span> {/* Adding search icon */}
+        <div className="container">
+            <div className="d-flex justify-content-between mb-3">
+                <div className="input-group">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text"><BsSearch /></span>
+                    </div>
+                    <input type="text" className="form-control" placeholder="Search for Assignments" />
+                </div>
+                <button className="btn btn-danger" onClick={() => navigate(`/Kanbas/Courses/${cid}/Assignments/new`)}>
+                    <BsPlus /> Add Assignment
+                </button>
             </div>
-            <input type="text" className="form-control" id="wd-search-assignment" placeholder="Search for Assignments" />
-          </div>
-          <div>
-            <button id="wd-add-assignment-group" className="btn btn-danger me-2"><BsPlus /> Group</button>
-            <button id="wd-add-assignment" className="btn btn-danger"><BsPlus /> Assignment</button>
-          </div>
+            <ul className="list-group">
+                {courseAssignments.map((assignment: any) => (
+                    <li key={assignment._id} className="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <BsGripVertical className="me-2" />
+                            <Link to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`} className="text-decoration-none">
+                                {assignment.title}
+                            </Link>
+                        </div>
+                        <div>
+                            <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(assignment._id)}>
+                                <BsTrash />
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
         </div>
-        <h3 id="wd-assignments-title" className="mb-4">ASSIGNMENTS 40% of Total</h3>
-        <ul id="wd-assignment-list" className="list-group">
-          {courseAssignments.map((assignment) => (
-            <li key={assignment._id} className="list-group-item d-flex justify-content-between align-items-center" style={{ borderLeft: '5px solid green' }}>
-              <div className="flex-grow-1 d-flex align-items-center">
-                <BsGripVertical className="me-2" />
-                <Link 
-                    to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
-                    className="text-decoration-none"
-                >
-                    {assignment.title}
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
     );
 }

@@ -1,51 +1,151 @@
-import React from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { BsFillPersonFill, BsClockFill, BsCalendarDateFill } from 'react-icons/bs'; // Example icons
-import { assignments } from '../../Database'; // Adjust the import path as necessary
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addAssignment, updateAssignment } from './reducer';
+import assignments from '../../Database/assignments.json';
 
 export default function AssignmentEditor() {
     const { cid, aid } = useParams();
     const navigate = useNavigate();
-    const assignment = assignments.find(a => a._id === aid);
+    const dispatch = useDispatch();
+    const existingAssignment = aid !== 'new' ? assignments.find(a => a._id === aid) : null;
 
-    if (!assignment) {
-        return <div>Assignment not found</div>; // Display error if no assignment is found
-    }
+    // Initialize the state with fetched data or default values
+    const [assignment, setAssignment] = useState({
+        title: '',
+        description: '',
+        points: 100,
+        dueDate: '',
+        availableFromDate: '',
+        availableUntilDate: ''
+    });
 
+    // Effect to update state when existingAssignment changes
+    useEffect(() => {
+        if (existingAssignment) {
+            setAssignment({
+                title: existingAssignment.title,
+                description:'The assignment is available online. Submit a link to the landing page of your web application running on Netlify.',
+                points: 100,
+                dueDate: '',
+                availableFromDate: '',
+                availableUntilDate: ''
+            });
+        } else {
+            setAssignment({
+                title: '',
+                description: 'The assignment is available online. Submit a link to the landing page of your web application running on Netlify.',
+                points: 100,
+                dueDate: '',
+                availableFromDate: '',
+                availableUntilDate: ''
+            });
+        }
+    }, [existingAssignment]);
+
+    // Handle input changes for all fields
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setAssignment({ ...assignment, [e.target.name]: e.target.value });
+    };
+
+    // Save new or update existing assignment
     const handleSave = () => {
-        // Placeholder for save logic
+        const assignmentData = { ...assignment, course: cid };
+        if (aid === 'new') {
+            dispatch(addAssignment(assignmentData));
+        } else {
+            dispatch(updateAssignment({ ...assignmentData, _id: aid }));
+        }
+        navigate(`/Kanbas/Courses/${cid}/Assignments`);
+    };
+
+    // Cancel and navigate back without saving
+    const handleCancel = () => {
         navigate(`/Kanbas/Courses/${cid}/Assignments`);
     };
 
     return (
-        <div id="wd-assignments-editor" className="container">
-            <h3>Assignment Name</h3>
-            <input type="text" className="form-control mb-3" defaultValue={assignment.title} />
-
-            <h3>Description</h3>
-            <textarea className="form-control mb-3" defaultValue="The assignment is available online. Submit a link to the landing page of your web application running on Netlify.">
-            </textarea>
-
-            <h3>Points</h3>
-            <input type="number" className="form-control mb-3" defaultValue={100} />
-
-            <h3>Assign to</h3>
-            <input type="text" className="form-control mb-3" defaultValue="Everyone" />
-
+        <div className="container mt-4">
+            <div className="mb-3">
+                <label htmlFor="title" className="form-label">Assignment Name</label>
+                <input 
+                    type="text" 
+                    className="form-control" 
+                    id="title" 
+                    name="title"
+                    value={assignment.title} 
+                    onChange={handleChange} 
+                />
+            </div>
+            <div className="mb-3">
+                <label htmlFor="description" className="form-label">New Assignment Description</label>
+                <textarea 
+                    className="form-control" 
+                    id="description" 
+                    name="description"
+                    value={assignment.description} 
+                    onChange={handleChange}
+                ></textarea>
+            </div>
+            <div className="mb-3">
+                <label htmlFor="points" className="form-label">Points</label>
+                <input 
+                    type="number" 
+                    className="form-control" 
+                    id="points" 
+                    name="points"
+                    value={assignment.points} 
+                    onChange={handleChange} 
+                />
+            </div>
             <div className="row">
-                <div className="col-md-6">
-                    <h3>Due</h3>
-                    <input type="date" className="form-control" defaultValue="2024-05-13" />
+                <div className="col-md-6 mb-3">
+                    <label htmlFor="dueDate" className="form-label">Due</label>
+                    <input 
+                        type="date" 
+                        className="form-control" 
+                        id="dueDate" 
+                        name="dueDate"
+                        value={assignment.dueDate} 
+                        onChange={handleChange} 
+                    />
                 </div>
-                <div className="col-md-6">
-                    <h3>Available from</h3>
-                    <input type="date" className="form-control" defaultValue="2024-05-06" />
+                <div className="col-md-6 mb-3">
+                    <label htmlFor="availableFromDate" className="form-label">Available from</label>
+                    <input 
+                        type="date" 
+                        className="form-control" 
+                        id="availableFromDate" 
+                        name="availableFromDate"
+                        value={assignment.availableFromDate} 
+                        onChange={handleChange} 
+                    />
+                </div>
+                <div className="col-md-6 mb-3">
+                    <label htmlFor="availableUntilDate" className="form-label">Until</label>
+                    <input 
+                        type="date" 
+                        className="form-control" 
+                        id="availableUntilDate" 
+                        name="availableUntilDate"
+                        value={assignment.availableUntilDate} 
+                        onChange={handleChange} 
+                    />
                 </div>
             </div>
-
-            <div className="d-flex justify-content-end mt-3">
-                <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-secondary me-2">Cancel</Link>
-                <button type="button" onClick={handleSave} className="btn btn-success">Save</button>
+            <div className="d-flex justify-content-end">
+                <button 
+                    className="btn btn-secondary me-2" 
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </button>
+                <button 
+                    className="btn btn-danger" 
+                    onClick={handleSave}
+                >
+                    Save
+                </button>
             </div>
         </div>
     );

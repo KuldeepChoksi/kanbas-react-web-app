@@ -1,7 +1,12 @@
 import { FaPlus, FaEye, FaCompress } from "react-icons/fa";
 import GreenCheckmark from "./GreenCheckmark";
+import ModuleEditor from "./ModuleEditor";
 
-export default function ModulesControls() {
+export default function ModulesControls(
+  { moduleName, setModuleName, addModule }:
+  { moduleName: string; setModuleName: (title: string) => void; addModule: () => void; 
+  }) 
+  {
   return (
     <div id="wd-modules-controls" className="text-nowrap d-flex justify-content-end" style={{ gap: "10px" }}>
       <button id="wd-collapse-all" className="btn btn-lg btn-outline-secondary">
@@ -21,9 +26,12 @@ export default function ModulesControls() {
           <li><a id="wd-unpublish-modules-only" className="dropdown-item" href="#"><GreenCheckmark /> Unpublish modules only</a></li>
         </ul>
       </div>
-      <button id="wd-add-module-btn" className="btn btn-lg btn-danger">
+      <button id="wd-add-module-btn" className="btn btn-lg btn-danger me-1 float-end"
+              data-bs-toggle="modal" data-bs-target="#wd-add-module-dialog" >
         <FaPlus className="me-2" />Module
       </button>
+      <ModuleEditor dialogTitle="Add Module" moduleName={moduleName}
+                    setModuleName={setModuleName} addModule={addModule} />
     </div>
   );
 }
