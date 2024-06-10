@@ -1,152 +1,86 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addAssignment, updateAssignment } from './reducer';
-import assignments from '../../Database/assignments.json';
+import { createAssignment, updateAssignment as updateApi, getAssignment } from './client';
 
-export default function AssignmentEditor() {
-    const { cid, aid } = useParams();
+const AssignmentEditor = () => {
+    const { cid, aid } = useParams();  // Assuming `aid` is 'new' for creating new assignments
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const existingAssignment = aid !== 'new' ? assignments.find(a => a._id === aid) : null;
-
-    // Initialize the state with fetched data or default values
     const [assignment, setAssignment] = useState({
         title: '',
         description: '',
-        points: 100,
-        dueDate: '',
-        availableFromDate: '',
-        availableUntilDate: ''
+        points: 100,  // Default points
+        course: cid,  // Include the course ID in the assignment object
     });
+    const [isLoaded, setIsLoaded] = useState(false);
 
-    // Effect to update state when existingAssignment changes
     useEffect(() => {
-        if (existingAssignment) {
-            setAssignment({
-                title: existingAssignment.title,
-                description:'The assignment is available online. Submit a link to the landing page of your web application running on Netlify.',
-                points: 100,
-                dueDate: '',
-                availableFromDate: '',
-                availableUntilDate: ''
+        if (aid !== 'new') {
+            getAssignment(aid as any).then(response => {
+                setAssignment(response.data);
+                setIsLoaded(true);
+            }).catch(error => {
+                console.error('Error fetching assignment:', error);
+                alert('Failed to fetch assignment.');
+                navigate(`/courses/${cid}/assignments`);
             });
         } else {
-            setAssignment({
-                title: '',
-                description: 'The assignment is available online. Submit a link to the landing page of your web application running on Netlify.',
-                points: 100,
-                dueDate: '',
-                availableFromDate: '',
-                availableUntilDate: ''
-            });
+            setIsLoaded(true);  // Ready to create a new assignment
         }
-    }, [existingAssignment]);
+    }, [aid, cid, navigate]);
 
-    // Handle input changes for all fields
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setAssignment({ ...assignment, [e.target.name]: e.target.value });
+    const handleChange = (event: { target: { name: any; value: any; }; }) => {
+        const { name, value } = event.target;
+        setAssignment(prev => ({ ...prev, [name]: value }));
     };
 
-    // Save new or update existing assignment
-    const handleSave = () => {
-        const assignmentData = { ...assignment, course: cid };
-        if (aid === 'new') {
-            dispatch(addAssignment(assignmentData));
-        } else {
-            dispatch(updateAssignment({ ...assignmentData, _id: aid }));
+    const handleSave = async () => {
+        if (!assignment.title) {
+            alert("Title cannot be empty.");
+            return;
         }
-        navigate(`/Kanbas/Courses/${cid}/Assignments`);
+        try {
+            if (aid === 'new') {
+                const created = await createAssignment(cid as any, assignment);
+                dispatch(addAssignment(created));
+            } else {
+                const updated = await updateApi(assignment);
+                dispatch(updateAssignment(updated));
+            }
+            navigate(`/courses/${cid}/assignments`);
+        } catch (error) {
+            console.error(`Error ${aid === 'new' ? 'creating' : 'updating'} assignment:`, error);
+            alert(`Failed to ${aid === 'new' ? 'create' : 'update'} assignment.`);
+        }
     };
 
-    // Cancel and navigate back without saving
     const handleCancel = () => {
-        navigate(`/Kanbas/Courses/${cid}/Assignments`);
+        navigate(`/courses/${cid}/assignments`);
     };
+
+    if (!isLoaded) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="container mt-4">
-            <div className="mb-3">
-                <label htmlFor="title" className="form-label">Assignment Name</label>
-                <input 
-                    type="text" 
-                    className="form-control" 
-                    id="title" 
-                    name="title"
-                    value={assignment.title} 
-                    onChange={handleChange} 
-                />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="description" className="form-label">New Assignment Description</label>
-                <textarea 
-                    className="form-control" 
-                    id="description" 
-                    name="description"
-                    value={assignment.description} 
-                    onChange={handleChange}
-                ></textarea>
-            </div>
-            <div className="mb-3">
-                <label htmlFor="points" className="form-label">Points</label>
-                <input 
-                    type="number" 
-                    className="form-control" 
-                    id="points" 
-                    name="points"
-                    value={assignment.points} 
-                    onChange={handleChange} 
-                />
-            </div>
-            <div className="row">
-                <div className="col-md-6 mb-3">
-                    <label htmlFor="dueDate" className="form-label">Due</label>
-                    <input 
-                        type="date" 
-                        className="form-control" 
-                        id="dueDate" 
-                        name="dueDate"
-                        value={assignment.dueDate} 
-                        onChange={handleChange} 
-                    />
+            <h1>{aid === 'new' ? 'Create Assignment' : 'Edit Assignment'}</h1>
+            <form>
+                <div className="mb-3">
+                    <label htmlFor="title" className="form-label">Title</label>
+                    <input type="text" className="form-control" id="title" name="title" value={assignment.title} onChange={handleChange} />
                 </div>
-                <div className="col-md-6 mb-3">
-                    <label htmlFor="availableFromDate" className="form-label">Available from</label>
-                    <input 
-                        type="date" 
-                        className="form-control" 
-                        id="availableFromDate" 
-                        name="availableFromDate"
-                        value={assignment.availableFromDate} 
-                        onChange={handleChange} 
-                    />
+                <div className="mb-3">
+                    <label htmlFor="description" className="form-label">Description</label>
+                    <textarea className="form-control" id="description" name="description" value={assignment.description} onChange={handleChange}></textarea>
                 </div>
-                <div className="col-md-6 mb-3">
-                    <label htmlFor="availableUntilDate" className="form-label">Until</label>
-                    <input 
-                        type="date" 
-                        className="form-control" 
-                        id="availableUntilDate" 
-                        name="availableUntilDate"
-                        value={assignment.availableUntilDate} 
-                        onChange={handleChange} 
-                    />
-                </div>
-            </div>
-            <div className="d-flex justify-content-end">
-                <button 
-                    className="btn btn-secondary me-2" 
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </button>
-                <button 
-                    className="btn btn-danger" 
-                    onClick={handleSave}
-                >
-                    Save
-                </button>
-            </div>
+                <button type="button" className="btn btn-success" onClick={handleSave}>Save</button>
+                <button type="button" className="btn btn-secondary" onClick={handleCancel}>Cancel</button>
+            </form>
         </div>
     );
-}
+};
+
+export default AssignmentEditor;
